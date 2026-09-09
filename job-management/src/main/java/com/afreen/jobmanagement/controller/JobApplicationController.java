@@ -11,7 +11,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/applications")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {
+    "http://localhost:5173",
+    "http://localhost:3000"
+    })
 public class JobApplicationController {
 
     private final JobApplicationService service;
@@ -46,5 +49,20 @@ public class JobApplicationController {
     @DeleteMapping("/{id}")
     public void deleteApplication(@PathVariable Long id) {
         service.deleteApplication(id);
+    }
+    @GetMapping("/search")
+    public List<JobApplication> searchApplications(
+        @RequestParam(required = false) String company,
+        @RequestParam(required = false) String status) {
+
+    if (company != null && !company.isBlank()) {
+        return service.searchByCompany(company);
+    }
+
+    if (status != null && !status.isBlank()) {
+        return service.searchByStatus(status);
+    }
+
+    return service.getAllApplications();
     }
 }

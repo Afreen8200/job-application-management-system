@@ -15,6 +15,9 @@ function App() {
 
   const [editingId, setEditingId] = useState(null);
 
+  const [searchCompany, setSearchCompany] = useState("");
+  const [searchStatus, setSearchStatus] = useState("");
+
   const fetchApplications = async () => {
     try {
       const response = await fetch(
@@ -22,7 +25,6 @@ function App() {
       );
 
       const data = await response.json();
-
       setApplications(data);
     } catch (error) {
       console.error("Error fetching applications:", error);
@@ -131,6 +133,40 @@ function App() {
     });
   };
 
+  const handleSearch = async () => {
+    try {
+      let url =
+        "http://localhost:8081/api/applications/search";
+
+      const params = new URLSearchParams();
+
+      if (searchCompany.trim()) {
+        params.append("company", searchCompany);
+      }
+
+      if (searchStatus) {
+        params.append("status", searchStatus);
+      }
+
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      setApplications(data);
+    } catch (error) {
+      console.error("Error searching applications:", error);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchCompany("");
+    setSearchStatus("");
+    fetchApplications();
+  };
+
   return (
     <div className="container">
       <h1>Job Application Manager</h1>
@@ -188,7 +224,9 @@ function App() {
         />
 
         <button type="submit">
-          {editingId ? "Update Application" : "Add Application"}
+          {editingId
+            ? "Update Application"
+            : "Add Application"}
         </button>
 
         {editingId && (
@@ -200,6 +238,43 @@ function App() {
           </button>
         )}
       </form>
+
+      <h2>Search Applications</h2>
+
+      <div className="search-section">
+        <input
+          type="text"
+          placeholder="Search by company"
+          value={searchCompany}
+          onChange={(e) =>
+            setSearchCompany(e.target.value)
+          }
+        />
+
+        <select
+          value={searchStatus}
+          onChange={(e) =>
+            setSearchStatus(e.target.value)
+          }
+        >
+          <option value="">All Statuses</option>
+          <option value="APPLIED">Applied</option>
+          <option value="INTERVIEW">Interview</option>
+          <option value="SELECTED">Selected</option>
+          <option value="REJECTED">Rejected</option>
+        </select>
+
+        <button type="button" onClick={handleSearch}>
+          Search
+        </button>
+
+        <button
+          type="button"
+          onClick={handleClearSearch}
+        >
+          Clear
+        </button>
+      </div>
 
       <h2>My Applications</h2>
 

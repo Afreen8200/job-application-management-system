@@ -1,5 +1,6 @@
 package com.afreen.jobmanagement.service;
 
+import com.afreen.jobmanagement.exception.ResourceNotFoundException;
 import com.afreen.jobmanagement.model.JobApplication;
 import com.afreen.jobmanagement.repository.JobApplicationRepository;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,9 @@ public class JobApplicationService {
 
     public JobApplication getApplicationById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Application not found"));
+                .orElseThrow(() ->
+                    new ResourceNotFoundException("Application not found with id: " + id)
+                );
     }
 
     public JobApplication createApplication(JobApplication application) {
@@ -44,5 +47,12 @@ public class JobApplicationService {
 
     public void deleteApplication(Long id) {
         repository.deleteById(id);
+    }
+    public List<JobApplication> searchByCompany(String company) {
+    return repository.findByCompanyNameContainingIgnoreCase(company);
+    }
+
+    public List<JobApplication> searchByStatus(String status) {
+    return repository.findByStatusIgnoreCase(status);
     }
 }

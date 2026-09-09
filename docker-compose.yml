@@ -1,0 +1,37 @@
+services:
+
+  postgres:
+    image: postgres:18
+    container_name: job-management-postgres
+    environment:
+      POSTGRES_DB: job_management
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./job-management
+    container_name: job-management-backend
+    environment:
+      DB_PASSWORD: ${DB_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/job_management
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ./job-management-frontend
+    container_name: job-management-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
